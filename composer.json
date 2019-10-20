@@ -1,0 +1,20 @@
+{
+    "name": "mentasystem/wallet",
+    "authors": [
+        {
+            "name": "Ali Niko Kherad",
+            "email": "alinikokherad@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "database"
+        ],
+        "psr-4": {
+            "App\\": "app/",
+            "Mentasystem\\Wallet\\": "Mentasystem/devdojo/calculator/src"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}

@@ -1,0 +1,12 @@
+{
+    "name": "mentasystem/wallet",
+    "authors": [
+        {
+            "name": "Ali Niko Kherad",
+            "email": "alinikokherad@gmail.com"
+        }
+    ],
+
+    "minimum-stability": "dev",
+    "require": {}
+}
