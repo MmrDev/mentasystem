@@ -1,14 +1,13 @@
 <?php
 
-namespace Modules\Wallet\Listeners;
+namespace Mentasystem\Wallet\Listeners;
 
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Queue;
-use Modules\Wallet\Events\CreatedOrderEvent;
-use Modules\Wallet\Jobs\CreateTransactionJob;
-
+use Mentasystem\Wallet\Events\CreatedOrderEvent;
+use Mentasystem\Wallet\Jobs\CreateTransactionJob;
 class CreatedOrderListener
 {
     /**

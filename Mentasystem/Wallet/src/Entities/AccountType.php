@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Entities;
+namespace Mentasystem\Wallet\Entities;
 
 /**
  * Modules\Wallet\Entities
@@ -15,21 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AccountType extends Model
 {
-    public $validate = [
-        "type" => "required",
-        "wallet_id" => "required",
-        "subtitle" => "required",
-        "description" => "required",
-        "balance_type" => "required",
-        "min_account_amount" => "required",
-        "max_account_amount" => "required",
-        "min_transaction_amount" => "required",
-        "max_transaction_amount" => "required",
-        "legal" => "required",
-        "interest_rate" => "required",
-        "interest_period" => "required",
-        "revoked" => "required",
-    ];
+
     protected $fillable = [
         "type",
         "wallet_id",

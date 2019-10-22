@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Entities;
+namespace Mentasystem\Wallet\Entities;
 
 /**
  * Modules\Account\Entities
@@ -15,14 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Credit extends Model
 {
-    public $validate = [
-        "account_id" => "required",
-        "treasury_id" => "required",
-        "title" => "required",
-        "currency" => "required",
-        "revoked" => "required",
-    ];
-
     protected $fillable = [
         "account_id",
         "club_id",

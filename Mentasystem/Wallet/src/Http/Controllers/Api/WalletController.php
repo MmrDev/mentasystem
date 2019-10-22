@@ -1,63 +1,23 @@
 <?php
 
-namespace Modules\Wallet\Http\Controllers\Api;
+namespace Mentasystem\Wallet\Http\Controllers\Api;
 
-use function foo\func;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use Modules\Wallet\Entities\Account;
-use Modules\Wallet\Entities\AccountType;
-use Modules\Wallet\Entities\Credit;
-use Modules\Wallet\Events\WalletCreatedEvent;
-use Modules\Wallet\Events\WalletDeletedEvent;
-use Modules\Wallet\repo\WalletDB;
-use Modules\Wallet\Entities\Wallet;
+use Mentasystem\Wallet\Entities\Account;
+use Mentasystem\Wallet\Entities\AccountType;
+use Mentasystem\Wallet\Entities\Credit;
+use Mentasystem\Wallet\repo\WalletDB;
+use Mentasystem\Wallet\Entities\Wallet;
+use Mentasystem\Wallet\Events\WalletCreatedEvent;
 
 class WalletController extends Controller
 {
     /**
-     *
-     */
-    public function index()
-    {
-
-    }
-
-    /**
      * @param Request $request
      * @param WalletDB $walletDB
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
      */
-
-    public function create(Request $r, WalletDB $walletDB)
-    {
-        $data = $r->all();
-        try {
-            \DB::beginTransaction();
-
-            //create wallet (wallet type)
-            $walletInstance = $walletDB->create($data);
-
-            //after create wallet event(create two treasury account)
-            $result = event(new WalletCreatedEvent($walletInstance, $data));
-
-            \DB::commit();
-            return Response()->json([
-                'message' => 'wallet created successfully',
-                'data' => $result
-            ], 200);
-        } catch (\Exception $e) {
-            \DB::rollBack();
-            return \response()
-                ->json([
-                    "message" => "some things went wrong",
-                    "error" => "{$e->getMessage()}"
-                ], 400);
-        }
-    }
-
     public function store(Request $request, WalletDB $walletDB)
     {
         $data = $request->all();
@@ -90,16 +50,22 @@ class WalletController extends Controller
     }
 
     /**
-     * @param $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $r)
+    public function index()
     {
-        return Wallet::where($r->filters[0][0], $r->filters[0][1], $r->filters[0][2])
-            ->paginate($r->input("page_limit"), ["*"], 'page', $r->input("page_number"));
+        $walletDB = new WalletDB();
+        $response = $walletDB->list();
+        return response()
+            ->json([
+                "message" => "wallet list",
+                "data" => $response
+            ], 200);
     }
 
     /**
      * @param $id
+     * @return mixed
      */
     public function show($id)
     {
@@ -107,8 +73,10 @@ class WalletController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param Request $r
      * @param $id
+     * @param WalletDB $walletDB
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $r, $id, WalletDB $walletDB)
     {
@@ -130,6 +98,9 @@ class WalletController extends Controller
 
     /**
      * @param $id
+     * @param WalletDB $walletDB
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function destroy($id, WalletDB $walletDB)
     {

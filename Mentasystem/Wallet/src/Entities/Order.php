@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Entities;
+namespace Mentasystem\Wallet\Entities;
 
 /**
  * Modules\Wallet\Entities
@@ -12,8 +12,7 @@ namespace Modules\Wallet\Entities;
  */
 
 use Illuminate\Database\Eloquent\Model;
-use Modules\Account\Entities\Credit;
-use Modules\Product\Entities\Cost;
+use Mentasystem\Account\Entities\Credit;
 
 class Order extends Model
 {

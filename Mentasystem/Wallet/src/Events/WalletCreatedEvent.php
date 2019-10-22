@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Events;
+namespace Mentasystem\Wallet\Events;
 
 use Illuminate\Queue\SerializesModels;
 

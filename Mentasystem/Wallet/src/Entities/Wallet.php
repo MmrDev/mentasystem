@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Entities;
+namespace Mentasystem\Wallet\Entities;
 
 /**
  * Modules\Wallet\Entities
@@ -12,14 +12,9 @@ namespace Modules\Wallet\Entities;
  */
 
 use Illuminate\Database\Eloquent\Model;
-use Modules\Product\Entities\Cost;
 
 class Wallet extends Model
 {
-    public $validate = [
-        "title" => "required",
-        "type" => "required",
-    ];
     protected $fillable = [
         "title",
         "type",
@@ -32,8 +27,4 @@ class Wallet extends Model
         return $this->hasMany(AccountType::class, "wallet_id");
     }
 
-    public function costs()
-    {
-        return $this->hasMany(Cost::class, "wallet_id");
-    }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Wallet\Entities;
+namespace Mentasystem\Wallet\Entities;
 
 /**
  * Modules\Wallet\Entities

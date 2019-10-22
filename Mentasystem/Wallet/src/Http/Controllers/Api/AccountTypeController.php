@@ -1,33 +1,39 @@
 <?php
 
-namespace Modules\Wallet\Http\Controllers\Api;
+namespace Mentasystem\Wallet\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Wallet\Entities\AccountType;
-use Modules\Wallet\repo\AccountTypeDB;
+use Mentasystem\Wallet\Entities\AccountType;
+use Mentasystem\Wallet\repo\AccountTypeDB;
 
 class AccountTypeController extends Controller
 {
     /**
-     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $r)
+    public function index()
     {
-        return AccountType::where($r->filters[0][0], $r->filters[0][1], $r->filters[0][2])
-            ->paginate($r->input("page_limit"), ["*"], 'page', $r->input("page_number"));
+        $accountTypeDB = new AccountTypeDB();
+        $response = $accountTypeDB->list();
+        return response()
+            ->json([
+                "message" => "account type list",
+                "data" => $response
+            ], 200);
     }
 
     /**
-     * create account type
      * @param Request $request
-     * @param AccountTypeDB $accountTypeDB
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request, AccountTypeDB $accountTypeDB)
+    public function store(Request $request)
     {
-        //create account type for club
+        $accountTypeDB = new AccountTypeDB;
+
+        //create account type
         $accountTypeData = $request->all();
+
         $accountTypeInstance = $accountTypeDB->create($accountTypeData);
 
         if ($accountTypeInstance) {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Modules\Wallet\Events;
+namespace Mentasystem\Wallet\Events;
 
 use Illuminate\Queue\SerializesModels;
-use Modules\Wallet\Entities\Order;
+use Mentasystem\Wallet\Entities\Order;
 
 class CreatedOrderEvent
 {
@@ -13,7 +13,6 @@ class CreatedOrderEvent
     public $fromAccountInstance;
     public $toAccountInstance;
     public $treasuryInstance;
-    public $productOrderInstance;
 
     /**
      * CreatedOrderEvent constructor.
@@ -24,14 +23,13 @@ class CreatedOrderEvent
      * @param $treasuryInstance
      * @param $productOrderInstance
      */
-    public function __construct(Order $order, $request = null, $fromAccountInstance = null, $toAccountInstance = null, $treasuryInstance = null, $productOrderInstance = null)
+    public function __construct(Order $order, $request = null, $fromAccountInstance = null, $toAccountInstance = null, $treasuryInstance = null)
     {
         $this->order = $order;
         $this->request = $request;
         $this->fromAccountInstance = $fromAccountInstance;
         $this->toAccountInstance = $toAccountInstance;
         $this->treasuryInstance = $treasuryInstance;
-        $this->productOrderInstance = $productOrderInstance;
     }
 
     /**

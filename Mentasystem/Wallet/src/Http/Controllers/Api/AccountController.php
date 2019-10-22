@@ -1,32 +1,35 @@
 <?php
 
-namespace Modules\Wallet\Http\Controllers\Api;
+namespace Mentasystem\Wallet\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Wallet\Entities\Account;
-use Modules\Wallet\Http\Requests\updateAccountRequset;
-use Modules\Wallet\repo\CreditDB;
-use Modules\Wallet\repo\AccountDB;
+use Mentasystem\Wallet\repo\CreditDB;
+use Mentasystem\Wallet\repo\AccountDB;
+use Mentasystem\Wallet\repo\AccountTypeDB;
 
 class AccountController extends Controller
 {
     /**
-     * Display a listing of the account.
-     * @param AccountDB $repository
-     * @return false|string
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(AccountDB $repository)
+    public function index()
     {
-        $limit = request()->has("limit") ? request()->input("limit") : 5;
-        return $repository->getAccounts($limit);
+        $repository = new AccountDB();
+        $limit = request()->has("limit") ? request()->input("limit") : 10;
+        $response = $repository->getAccounts($limit);
+        return response()
+            ->json([
+                "message" => "account list",
+                "data" => $response
+            ], 200);
     }
 
     /**
-     * Show the specified account.
-     * @param int $id
      * @param AccountDB $repository
-     * @return mixed
+     * @param $id
+     * @return bool|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|\Mentasystem\Wallet\Entities\Account|\Mentasystem\Wallet\Entities\Account[]|object|null
      */
     public function show(AccountDB $repository, $id)
     {
@@ -38,43 +41,59 @@ class AccountController extends Controller
 
     /**
      * @param Request $request
-     * @param AccountDB $accountDB
-     * @param CreditDB $creditDB
      * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
      */
-    public function store(Request $request, AccountDB $accountDB, CreditDB $creditDB)
+    public function store(Request $request)
     {
+        $accountDB = new AccountDB();
+        $accountTypeDB = new AccountTypeDB();
+        $creditDB = new CreditDB();
+        $user_id = $request->user_id;
+
         try {
             \DB::beginTransaction();
-            //insert account into database
-            $accountData = $request->all();
-            $accountInstance = $accountDB->create($accountData);
 
-            //check for successfully create account
-            if (!$accountInstance) {
-                return \response()
-                    ->json([
-                        'message' => __("messages.account_create_fail"),
-                        "error" => __("messages.account_create_fail")
-                    ], 409);
+            //search account type treasury and create for each of them account
+            $allTreasuryAccountType = $accountTypeDB->getTreasury();
+
+            //create account for every treasury account type
+            foreach ($allTreasuryAccountType as $treasuryAccountType) {
+
+                //get treasury account
+                $treasuryAccountInstance = $accountDB->getTreasuryAccount($treasuryAccountType->wallet_id);
+
+                //create account
+                $accountData = [
+                    "user_id" => $user_id,
+                    "treasury_id" => $treasuryAccountInstance->id,
+                    "account_type_id" => $treasuryAccountType->id,
+                ];
+                $accountInstance = $accountDB->create($accountData);
+
+                //check for successfully create account
+                if (!$accountInstance) {
+                    return \response()
+                        ->json([
+                            'message' => __("messages.account_create_fail"),
+                            "error" => __("messages.account_create_fail")
+                        ], 409);
+                }
+
+                //create credit
+                $creditData = [
+                    "account_id" => $accountInstance->id,
+                    "treasury_id" => $treasuryAccountInstance->id,
+                    "amount" => 0,
+                    "usable_at" => null,
+                    "expired_at" => null,
+                    "revoked" => false,
+                ];
+                $creditDB->create($creditData);
             }
-
-            //create credit
-            $creditData = [
-                "account_id" => $accountInstance->id,
-                "treasury_id" => 1,
-                "amount" => $accountData['amount'],
-                "usable_at" => null,
-                "expired_at" => null,
-                "revoked" => false,
-            ];
-            $creditDB->create($creditData);
 
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollBack();
-
         }
 
         //success response after create account
@@ -85,13 +104,12 @@ class AccountController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     * @param updateAccountRequset $request
-     * @param int $id
+     * @param Requset $request
      * @param AccountDB $repository
-     * @return mixed
+     * @param $id
+     * @return int
      */
-    public function update(updateAccountRequset $request, AccountDB $repository, $id)
+    public function update(Requset $request, AccountDB $repository, $id)
     {
         $data = $repository
             ->convertRequestToArray($request);
@@ -101,10 +119,10 @@ class AccountController extends Controller
     }
 
     /**
-     * Remove the specified account from storage.
-     * @param int $id
      * @param AccountDB $repository
-     * @return false|string
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function destroy(AccountDB $repository, $id)
     {

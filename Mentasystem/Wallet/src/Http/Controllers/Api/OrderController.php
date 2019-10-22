@@ -1,19 +1,14 @@
 <?php
 
-namespace Modules\Wallet\Http\Controllers\Api;
+namespace Mentasystem\Wallet\Http\Controllers\Api;
 
-use App\Http\Resources\UserResource;
-use App\repo\UserDB;
-use App\User;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Account\Entities\Account;
-use Modules\Wallet\Entities\Order;
-use Modules\Wallet\repo\OrderDB;
-use Modules\Wallet\repo\ProductOrderDB;
-use Modules\Wallet\repo\TransactionDB;
-use Modules\Wallet\Transformers\ProductOrderResource;
+use Mentasystem\Wallet\Entities\Order;
+use Mentasystem\Wallet\repo\OrderDB;
+use Mentasystem\Wallet\repo\TransactionDB;
+use Mentasystem\Wallet\Transformers\ProductOrderResource;
 
 /**
  * @property Order refund
@@ -27,14 +22,11 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $limit = \request()->has("limit") ? \request()->input("limit") : 5;
-        $page = \request()->has("page") ? \request()->input("page") : 1;
-        $from = \request()->has("from") ? \request()->input("from") : null;
-        $to = \request()->has("to") ? \request()->input("to") : null;
-        $productOrderDB = new ProductOrderDB();
+        $orderDB = new OrderDB();
+        list($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month) = $this->getRequestInputs();
 
         //get all orders by pagination
-        $productOrders = $productOrderDB->list($from, $to);
+        $orders = $orderDB->list($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month);
 
         //push list of order into resource collection
         $resource = ProductOrderResource::collection($productOrders);
@@ -61,34 +53,16 @@ class OrderController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function store(Request $request, OrderDB $orderDB)
+    public function store(Request $request)
     {
-        $userDB = resolve(UserDB::class);
+        $orderDB = new OrderDB();
         $data = $request->all();
-        //get user from_user id
-        $from_user_instance = $userDB->find($data["from_user_id"]);
-        if ((!$from_user_instance) || ($from_user_instance->type == "customer")) {
-            return \response()
-                ->json([
-                    "message" => "this merchant is not exist",
-                    "error" => "check from user id"
-                ], 400);
-        }
-
-        //get user to_user id from login user
-        $to_user_instance = \Auth::user();
-        if (!($to_user_instance instanceof User)) {
-            return \response()
-                ->json([
-                    "message" => "you are not login",
-                    "error" => "check login"
-                ], 400);
-        }
 
         $instance = $orderDB->create($data);
         if ($instance) {
             return $instance;
         }
+
         return response()
             ->json([
                 "message" => "we can not create order",
@@ -104,13 +78,7 @@ class OrderController extends Controller
     {
         //get user with him orders
         $userDB = new UserDB();
-        $page = \request()->has("page") ? \request("page") : 1;
-        $limit = \request()->has("limit") ? \request("limit") : 10;
-        $from = \request()->has("from") ? \request("from") : null;
-        $to = \request()->has("to") ? \request("to") : null;
-        $day = \request()->has("day") ? \request("day") : null;
-        $week = \request()->has("week") ? \request("week") : null;
-        $month = \request()->has("month") ? \request("month") : null;
+        list($page, $limit, $from, $to, $day, $week, $month) = $this->getRequestInputs();
 
         $resource = $userDB->getUserProductOrder($mobile, $from, $to, $day, $week, $month);
         if (empty($resource)) {
@@ -213,6 +181,24 @@ class OrderController extends Controller
                 "message" => "success refund order",
                 "data" => $this->refund
             ], 200);
+    }
+
+    /**
+     * @return array
+     */
+    private function getRequestInputs(): array
+    {
+        $page = \request()->has("page") ? \request("page") : 1;
+        $limit = \request()->has("limit") ? \request("limit") : 10;
+        $user_id = \request()->has("user_id") ? \request("user_id") : null;
+        $product_id = \request()->has("product_id") ? \request("product_id") : null;
+        $wallet = \request()->has("wallet") ? \request("wallet") : null;
+        $from = \request()->has("from") ? \request("from") : null;
+        $to = \request()->has("to") ? \request("to") : null;
+        $day = \request()->has("day") ? \request("day") : null;
+        $week = \request()->has("week") ? \request("week") : null;
+        $month = \request()->has("month") ? \request("month") : null;
+        return array($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month);
     }
 
 
