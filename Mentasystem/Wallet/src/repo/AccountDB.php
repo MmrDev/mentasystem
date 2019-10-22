@@ -92,9 +92,14 @@ class AccountDB
      * @param $treasury_id
      * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object|null
      */
-    public function getUserAccount($user_id, $treasury_id)
+    public function getUserAccount($user_id, $treasury_id = null)
     {
-        $instance = Account::where("user_id", "=", $user_id)->where("treasury_id", $treasury_id)->first();
+        if (isset($treasury_id)) {
+            $instance = Account::where("user_id", "=", $user_id)->where("treasury_id", $treasury_id)->first();
+        } else {
+            $instance = Account::where("user_id", "=", $user_id)->get();
+        }
+
         return $instance;
     }
 
@@ -135,6 +140,11 @@ class AccountDB
         $account->delete();
     }
 
+    /**
+     * @param $account_id
+     * @param null $wallet_id
+     * @return mixed
+     */
     public function getAccountCredit($account_id, $wallet_id = null)
     {
         $accountInstance = Account::where("id", $account_id)->with("credits")->first();

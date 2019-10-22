@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Wallet\Transformers;
+namespace Mentasystem\Wallet\Transformers;
 
 use Illuminate\Http\Resources\Json\Resource;
-use Modules\Wallet\Entities\Account;
-use Modules\Wallet\Entities\AccountType;
+use Mentasystem\Wallet\Entities\Account;
+use Mentasystem\Wallet\Entities\AccountType;
 
 class   OrderResource extends Resource
 {
@@ -17,7 +17,6 @@ class   OrderResource extends Resource
     public function toArray($request)
     {
 //        return parent::toArray($request);
-
 
         //       wallet type
         $walletType = AccountType::find

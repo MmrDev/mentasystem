@@ -22,6 +22,7 @@ Route::group([
     Route::resource('/', 'WalletController');
     Route::resource('account_types', 'AccountTypeController');
     Route::resource('accounts', 'AccountController');
+    Route::post('accounts/charge', 'AccountController@charge');
     Route::resource('orders', 'OrderController');
 });
 

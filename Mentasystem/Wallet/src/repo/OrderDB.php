@@ -8,12 +8,12 @@
 
 namespace Mentasystem\Wallet\repo;
 
-
 use Carbon\Carbon;
 use Mentasystem\Wallet\Entities\Account;
 use Mentasystem\Wallet\Entities\Order;
 use Mentasystem\Wallet\Entities\Wallet;
 use Mentasystem\Wallet\Events\CreatedOrderEvent;
+use Mentasystem\Wallet\Transformers\OrderResource;
 
 /**
  * Class OrderDB
@@ -26,6 +26,8 @@ class OrderDB
      * @param $user_id
      * @param $product_id
      * @param $wallet
+     * @param $fromAmount
+     * @param $toAmount
      * @param $from
      * @param $to
      * @param $day
@@ -33,7 +35,7 @@ class OrderDB
      * @param $month
      * @return mixed
      */
-    public function list($limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month)
+    public function list($limit, $user_id, $product_id, $wallet, $fromAmount, $toAmount, $from, $to, $day, $week, $month)
     {
         $filter = [
             ["paid_at", "!=", null]
@@ -48,7 +50,8 @@ class OrderDB
 
         //wallet filter
         if (!is_null($wallet)) {
-            array_push($where, ["treasury_account_id", "=", $treasuryAccountId]);
+            $treasuryAccountInstance = $this->walletToTreasuryAcc($wallet);
+            array_push($filter, ["treasury_account_id", "=", $treasuryAccountInstance->id]);
         }
 
         //time filter
@@ -66,68 +69,36 @@ class OrderDB
             }
         }
 
-        $ordersInstance = Order::
-        where($filter)
-            ->with("transactions")
-            ->paginate($limit)
-            ->get();
-
-        $where = [];
-        $orWhere = null;
-        // wallet filter
-
-
         // user filter
         if (!is_null($user_id)) {
-            array_push($where, ["from_account_id", "=", $user_id[0]]);
-            $orWhere = count($user_id) > 1 ? [["from_account_id", "=", $user_id[1]]] : null;
+            array_push($filter, ["from_account_id", "=", $user_id]);
+//            $orWhere = count($user_id) > 1 ? [["from_account_id", "=", $user_id[1]]] : null;
         }
 
         // amount filter
-        if (!is_null($fromAmount) && !is_null($toAmount)) {
-            array_push($where, ["amount", ">=", $fromAmount], ["amount", "<=", $toAmount]);
+        if (!is_null($fromAmount)) {
+            array_push($filter, ["amount", ">=", $fromAmount]);
         }
 
-
-        if (isset($day) || isset($week) || isset($month)) {
-
-            if (isset($day)) {
-                array_push($where, ["created_at", ">=", Carbon::now()->subDay($day)]);
-            } elseif (isset($week)) {
-                array_push($where, ["created_at", ">=", Carbon::now()->subWeek($week)]);
-            } else {
-                array_push($where, ["created_at", ">=", Carbon::now()->subMonth($month)]);
-            }
-
-            //if isset (day or week or month) filter
-            $ordersInstance = $ordersInstance->where($where)->orWhere($orWhere)
-                ->get();
-        } elseif (isset($from, $to)) {
-
-            //convert request date to laravel created_at date type
-            $from = date("Y-m-d" . " 00:00:00", strtotime($from));
-            $to = date("Y-m-d" . " 23:59:59", strtotime($to));
-
-            array_push($where, ["created_at", ">=", $from], ["created_at", "<=", $to]);
-//            array_push($where);
-
-            //if is set (from & to) filter
-            $ordersInstance = $ordersInstance->where($where)->orWhere($orWhere)->get();
-
-        } else {
-
-            //if is not set any filter
-            $ordersInstance = $ordersInstance->Where($where)->orWhere($orWhere)->get();
-
+        if (!is_null($toAmount)) {
+            array_push($filter, ["amount", "<=", $toAmount]);
         }
 
-        $ordersInstance = OrderResource::collection($ordersInstance);
+        //inquiry of order
+        $ordersInstance = Order::
+        where($filter)
+            ->with("transactions")
+            ->paginate($limit);
+//            ->get();
+
+//        $ordersInstance = OrderResource::collection($ordersInstance);
         return $ordersInstance;
     }
 
     /**
      * @param $request
      * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function create($request)
     {
@@ -249,5 +220,19 @@ class OrderDB
                 "message" => "order submit successfully",
                 "data" => $orderInstance
             ], 200);
+    }
+
+    /**
+     * @param $wallet
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|\Modules\Wallet\Entities\Account|object|null
+     */
+    private function walletToTreasuryAcc($wallet)
+    {
+        $response = \Modules\Wallet\Entities\Account::whereHas('accountType', function ($q) {
+            $q->where("type", "=", "treasury");
+        })->whereHas('accountType.wallet', function ($q) use ($wallet) {
+            $q->where("title", "=", $wallet);
+        })->first();
+        return $response;
     }
 }

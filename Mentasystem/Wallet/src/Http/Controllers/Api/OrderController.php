@@ -8,7 +8,6 @@ use Illuminate\Routing\Controller;
 use Mentasystem\Wallet\Entities\Order;
 use Mentasystem\Wallet\repo\OrderDB;
 use Mentasystem\Wallet\repo\TransactionDB;
-use Mentasystem\Wallet\Transformers\ProductOrderResource;
 
 /**
  * @property Order refund
@@ -23,17 +22,15 @@ class OrderController extends Controller
     public function index()
     {
         $orderDB = new OrderDB();
-        list($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month) = $this->getRequestInputs();
+        list($page, $limit, $user_id, $product_id, $wallet, $fromAmount, $toAmount, $from, $to, $day, $week, $month) = $this->getRequestInputs();
 
         //get all orders by pagination
-        $orders = $orderDB->list($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month);
+        $orders = $orderDB->list($limit, $user_id, $product_id, $wallet, $fromAmount, $toAmount, $from, $to, $day, $week, $month);
 
         //push list of order into resource collection
-        $resource = ProductOrderResource::collection($productOrders);
+//        $resource = ProductOrderResource::collection($productOrders);
 
-        $resource = $resource->paginate($limit, $page);
-
-        if (!$resource) {
+        if (!$orders) {
             return response()
                 ->json([
                     "message" => "some things went wrong",
@@ -43,7 +40,7 @@ class OrderController extends Controller
         return response()
             ->json([
                 "message" => "user all orders",
-                "data" => $resource
+                "data" => $orders
             ], 200);
     }
 
@@ -193,12 +190,14 @@ class OrderController extends Controller
         $user_id = \request()->has("user_id") ? \request("user_id") : null;
         $product_id = \request()->has("product_id") ? \request("product_id") : null;
         $wallet = \request()->has("wallet") ? \request("wallet") : null;
+        $fromAmount = \request()->has("from_amount") ? \request("from_amount") : null;
+        $toAmount = \request()->has("to_amount") ? \request("to_amount") : null;
         $from = \request()->has("from") ? \request("from") : null;
         $to = \request()->has("to") ? \request("to") : null;
         $day = \request()->has("day") ? \request("day") : null;
         $week = \request()->has("week") ? \request("week") : null;
         $month = \request()->has("month") ? \request("month") : null;
-        return array($page, $limit, $user_id, $product_id, $wallet, $from, $to, $day, $week, $month);
+        return array($page, $limit, $user_id, $product_id, $wallet, $fromAmount, $toAmount, $from, $to, $day, $week, $month);
     }
 
 
