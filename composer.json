@@ -8,7 +8,6 @@
     ],
     "autoload": {
         "classmap": [
-            "database"
         ],
         "psr-4": {
             "Mentasystem\\Wallet\\": "src/"
