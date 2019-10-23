@@ -8,12 +8,18 @@
     ],
     "autoload": {
         "classmap": [
-            "database"
         ],
         "psr-4": {
             "Mentasystem\\Wallet\\": "src/"
         }
     },
-    "minimum-stability": "dev",
-    "require": {}
+
+    "require": {},
+    
+    
+    "repositories": [
+        {"type": "composer", "url": "https://repo.packagist.com/mentasystem/"},
+        {"packagist.org": false}
+    ]
+
 }
