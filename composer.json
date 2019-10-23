@@ -14,6 +14,11 @@
             "Mentasystem\\Wallet\\": "src/"
         }
     },
-
+{
+    "repositories": [
+        {"type": "composer", "url": "https://repo.packagist.com/mentasystem/"},
+        {"packagist.org": false}
+    ]
+},
     "require": {}
 }
