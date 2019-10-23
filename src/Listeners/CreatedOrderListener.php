@@ -8,7 +8,6 @@ use Illuminate\Queue\Jobs\Job;
 use Illuminate\Support\Facades\Queue;
 use Mentasystem\Wallet\Events\CreatedOrderEvent;
 use Mentasystem\Wallet\Jobs\CreateTransactionJob;
-
 class CreatedOrderListener
 {
     /**

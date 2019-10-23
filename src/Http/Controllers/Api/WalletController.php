@@ -12,7 +12,6 @@ use Mentasystem\Wallet\repo\AccountTypeDB;
 use Mentasystem\Wallet\repo\CreditDB;
 use Mentasystem\Wallet\repo\WalletDB;
 use Mentasystem\Wallet\Entities\Wallet;
-use Mentasystem\Wallet\Events\WalletCreatedEvent;
 
 class WalletController extends Controller
 {
@@ -38,46 +37,46 @@ class WalletController extends Controller
             //after create wallet event(create two treasury account)
 //            event(new WalletCreatedEvent($walletInstance, $data));
 
-            //create account type for treasury
-            $accountTypeData = [
-                "type" => "treasury",
-                "wallet_id" => $walletInstance->id,
-                "title" => isset($data["title"]) ? $data["title"] : null,
-                "subtitle" => isset($data["subtitle"]) ? $data["subtitle"] : null,
-                "description" => isset($data["description"]) ? $data["description"] : null,
-                "balance_type" => "ziro",
-                "min_account_amount" => 0,
-                "max_account_amount" => 0,
-                "min_transaction_amount" => 0,
-                "max_transaction_amount" => 0,
-                "legal" => false,
-                "interest_rate" => 1,
-                "interest_period" => 1,
-                "revoked" => false,
-            ];
-            $instanceTypeAccount = $accountTypeDB->create($accountTypeData);
+                //create account type for treasury
+                $accountTypeData = [
+                    "type" => "treasury",
+                    "wallet_id" => $walletInstance->id,
+                    "title" => isset($data["title"]) ? $data["title"] : null,
+                    "subtitle" => isset($data["subtitle"]) ? $data["subtitle"] : null,
+                    "description" => isset($data["description"]) ? $data["description"] : null,
+                    "balance_type" => "ziro",
+                    "min_account_amount" => 0,
+                    "max_account_amount" => 0,
+                    "min_transaction_amount" => 0,
+                    "max_transaction_amount" => 0,
+                    "legal" => false,
+                    "interest_rate" => 1,
+                    "interest_period" => 1,
+                    "revoked" => false,
+                ];
+                $instanceTypeAccount = $accountTypeDB->create($accountTypeData);
 
-            //create account for treasury
-            $accountData = [
-                "account_type_id" => $instanceTypeAccount->id,
-                "user_id" => null,
-                "min_transaction" => 0,
-                "revoked" => false,
-            ];
-            $instanceAccount = $accountDB->create($accountData);
+                //create account for treasury
+                $accountData = [
+                    "account_type_id" => $instanceTypeAccount->id,
+                    "user_id" => null,
+                    "min_transaction" => 0,
+                    "revoked" => false,
+                ];
+                $instanceAccount = $accountDB->create($accountData);
 
-            //treasury account credit
-            $creditData = [
-                "account_id" => $instanceAccount->id,
-                "wallet_id" => $walletInstance->id,
-                "treasury_id" => 0,
-                "club_id" => isset($data["club_id"]) ? $data["club_id"] : 0,
-                "amount" => 0,
-                "usable_at" => null,
-                "expired_at" => null,
-                "revoked" => false,
-            ];
-            $creditDB->create($creditData);
+                //treasury account credit
+                $creditData = [
+                    "account_id" => $instanceAccount->id,
+                    "wallet_id" => $walletInstance->id,
+                    "treasury_id" => 0,
+                    "club_id" => isset($data["club_id"]) ? $data["club_id"] : 0,
+                    "amount" => 0,
+                    "usable_at" => null,
+                    "expired_at" => null,
+                    "revoked" => false,
+                ];
+                $creditDB->create($creditData);
 
             \DB::commit();
         } catch (\Exception $e) {

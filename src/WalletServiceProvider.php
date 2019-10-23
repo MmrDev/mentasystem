@@ -3,33 +3,39 @@
 namespace Mentasystem\Wallet;
 
 use Illuminate\Support\ServiceProvider;
-use Mentasystem\Wallet\Events\WalletCreatedEvent;
-use Mentasystem\Wallet\Listeners\WalletCreatedListener;
-use Mentasystem\Wallet\Events\CreatedOrderEvent;
-use Mentasystem\Wallet\Listeners\CreatedOrderListener;
+use Mentasystem\Wallet\Http\Controllers\Api\AccountController;
+use Mentasystem\Wallet\Http\Controllers\Api\AccountTypeController;
+use Mentasystem\Wallet\Http\Controllers\Api\OrderController;
+use Mentasystem\Wallet\Http\Controllers\Api\WalletController;
 
 class WalletServiceProvider extends ServiceProvider
 {
-    protected $listen = [
-        //        wallet register event
-        WalletCreatedEvent::class => [
-            WalletCreatedListener::class
-        ],
-
-        //        transaction event
-        CreatedOrderEvent::class => [
-            CreatedOrderListener::class
-        ],
-    ];
-
     public function boot()
     {
-        include __DIR__ . '/Routes/api.php';
-
+//        include __DIR__ . '/Routes/api.php';
+        $this->loadRoutesFrom(__DIR__.'/Routes/api.php');
+        $this->loadMigrationsFrom(__DIR__.'/Database');
     }
 
     public function register()
     {
-        $this->publishes([__DIR__ . '/Database/', database_path("migrations")], "migration");
+        //controller facade
+        $this->app->bind('Account', function () {
+            return new AccountController();
+        });
+
+        $this->app->bind('AccountType', function () {
+            return new AccountTypeController();
+        });
+
+        $this->app->bind('Order', function () {
+            return new OrderController();
+        });
+
+        $this->app->bind('Wallet', function () {
+            return new WalletController();
+        });
+
+//        $this->publishes([__DIR__ . '/Database', database_path("migrations")], "migration");
     }
 }
