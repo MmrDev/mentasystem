@@ -17,10 +17,10 @@
 
     "require": {},
     
-    {
+    
     "repositories": [
         {"type": "composer", "url": "https://repo.packagist.com/mentasystem/"},
         {"packagist.org": false}
     ]
-}
+
 }
