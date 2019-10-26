@@ -193,7 +193,7 @@ class OrderDB
      */
     private function walletToTreasuryAcc($wallet)
     {
-        $response = \Modules\Wallet\Entities\Account::whereHas('accountType', function ($q) {
+        $response = Account::whereHas('accountType', function ($q) {
             $q->where("type", "=", "treasury");
         })->whereHas('accountType.wallet', function ($q) use ($wallet) {
             $q->where("title", "=", $wallet);
