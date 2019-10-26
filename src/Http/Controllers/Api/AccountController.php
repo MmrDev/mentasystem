@@ -42,22 +42,22 @@ class AccountController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Exception
+     * @param $request
+     * @return mixed
      */
-    public function store(Request $request)
+    public function store($request)
     {
         $accountDB = new AccountDB();
         $accountTypeDB = new AccountTypeDB();
         $creditDB = new CreditDB();
-        $user_id = $request->user_id;
+        $user_id = request()->has("user_id")?request("user_id"):$request["user_id"];
+        $user_type = request()->has("user_type")?request("user_type"):$request["user_type"];
 
         try {
             \DB::beginTransaction();
 
             //get account type
-            $accountTypes=$accountTypeDB->getAccountTypeWithAccountType($request->user_type);
+            $accountTypes=$accountTypeDB->getAccountTypeWithAccountType($user_type);
 
             //create account for every treasury account type
             foreach ($accountTypes as $accountType) {
@@ -98,6 +98,12 @@ class AccountController extends Controller
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollBack();
+            //failed response before create account
+            return response()
+                ->json([
+                    "message" => "some things went wrong",
+                    "error" => $e->getMessage(),
+                ], 400);
         }
 
         //success response after create account
