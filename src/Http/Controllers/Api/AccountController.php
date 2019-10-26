@@ -50,7 +50,6 @@ class AccountController extends Controller
         $accountDB = new AccountDB();
         $accountTypeDB = new AccountTypeDB();
         $creditDB = new CreditDB();
-        dd($request);
         $user_id = $request->user_id;
         $user_type = $request->user_type;
 
