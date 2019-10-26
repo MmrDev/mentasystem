@@ -56,9 +56,6 @@ class AccountController extends Controller
         try {
             \DB::beginTransaction();
 
-            //search account type treasury and create for each of them account
-            $allTreasuryAccountType = $accountTypeDB->getTreasury();
-
             //get account type
             $accountTypes=$accountTypeDB->getAccountTypeWithAccountType($request->user_type);
 
