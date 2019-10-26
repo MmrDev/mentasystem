@@ -59,17 +59,21 @@ class AccountController extends Controller
             //search account type treasury and create for each of them account
             $allTreasuryAccountType = $accountTypeDB->getTreasury();
 
+            //get account type
+            $accountTypes=$accountTypeDB->getAccountTypeWithAccountType($request->user_type);
+
             //create account for every treasury account type
-            foreach ($allTreasuryAccountType as $treasuryAccountType) {
+            foreach ($accountTypes as $accountType) {
 
                 //get treasury account
-                $treasuryAccountInstance = $accountDB->getTreasuryAccount($treasuryAccountType->wallet_id);
+                $treasuryAccountInstance = $accountDB->getTreasuryAccount($accountType->wallet_id);
+
 
                 //create account
                 $accountData = [
                     "user_id" => $user_id,
                     "treasury_id" => $treasuryAccountInstance->id,
-                    "account_type_id" => $treasuryAccountType->id,
+                    "account_type_id" => $accountType->id,
                 ];
                 $accountInstance = $accountDB->create($accountData);
 
