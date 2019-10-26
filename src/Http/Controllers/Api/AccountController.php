@@ -42,16 +42,17 @@ class AccountController extends Controller
     }
 
     /**
-     * @param $request
+     * @param Request $request
      * @return mixed
      */
-    public function store($request)
+    public function store(Request $request)
     {
         $accountDB = new AccountDB();
         $accountTypeDB = new AccountTypeDB();
         $creditDB = new CreditDB();
-        $user_id = request()->has("user_id")?request("user_id"):$request["user_id"];
-        $user_type = request()->has("user_type")?request("user_type"):$request["user_type"];
+        dd($request);
+        $user_id = $request->user_id;
+        $user_type = $request->user_type;
 
         try {
             \DB::beginTransaction();

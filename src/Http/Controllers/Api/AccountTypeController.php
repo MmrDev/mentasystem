@@ -25,14 +25,14 @@ class AccountTypeController extends Controller
 
     /**
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return mixed
      */
-    public function store($request)
+    public function store(Request $request)
     {
         $accountTypeDB = new AccountTypeDB;
 
         //create account type
-        $accountTypeData = isset($request)?$request:request()->all();
+        $accountTypeData = $request->all();
 
         $accountTypeInstance = $accountTypeDB->create($accountTypeData);
 
