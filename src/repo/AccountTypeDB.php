@@ -55,4 +55,15 @@ class AccountTypeDB
         $instances = AccountType::where("type", "treasury")->get();
         return $instances;
     }
+
+    /**
+     * @param $accountType
+     * @return mixed
+     */
+    public function getAccountTypeWithAccountType($accountType)
+    {
+        // get account type instance
+        $instances=AccountType::where("type",$accountType)->get();
+        return $instances;
+    }
 }
