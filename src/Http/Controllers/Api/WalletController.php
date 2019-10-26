@@ -92,7 +92,8 @@ class WalletController extends Controller
         if ($walletInstance) {
             return \response()
                 ->json([
-                    "message" => "wallet successfully created"
+                    "message" => "wallet successfully created",
+                    "data"=>$walletInstance
                 ], 200);
         }
     }
